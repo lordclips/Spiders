@@ -20,6 +20,7 @@ bot = commands.Bot(
 
 bot.dirname = dirname
 
+
 @bot.command(aliases=("e",))
 @commands.is_owner()
 async def ext(ctx, com: str, name: str, debug: bool = True):

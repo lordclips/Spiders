@@ -17,7 +17,10 @@ class Pumpkins(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.maintenence = 753522913839153163
-        self.db = tinydb.TinyDB(os.path.join(self.bot.dirname, "cogs/public/pumpkins.json"), storage=CachingMiddleware(JSONStorage))
+        self.db = tinydb.TinyDB(
+            os.path.join(self.bot.dirname, "cogs/pumpkins.json"),
+            storage=CachingMiddleware(JSONStorage),
+        )
 
     # Listeners
     @commands.Cog.listener()
@@ -52,11 +55,9 @@ class Pumpkins(commands.Cog):
     @commands.is_owner()
     async def give_bone(self, ctx, mid: int):
         message = await ctx.message.channel.fetch_message(mid)
-        
-        message_table = self.db.table("message_table")   
-        message_table.insert(
-            Document({"reacted": time.time()}, doc_id=message.id)
-        )
+
+        message_table = self.db.table("message_table")
+        message_table.insert(Document({"reacted": time.time()}, doc_id=message.id))
 
         await message.add_reaction(BONE)
 
@@ -66,7 +67,7 @@ class Pumpkins(commands.Cog):
         await ctx.send(message_table.all())
 
     # Utils
-    
+
     # Cogs funcs
     def cog_unload(self):
         self.db.close()

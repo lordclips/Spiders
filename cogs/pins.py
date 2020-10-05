@@ -19,7 +19,7 @@ class Pins(commands.Cog):
 
         self.time_checker.start()
 
-        with open(os.join.path(self.bot.dirname, "cogs/public/pins.json"), "r") as js:
+        with open(os.join.path(self.bot.dirname, "cogs/pins.json"), "r") as js:
             self.pins = json.load(js)
 
     # Checks
@@ -110,7 +110,7 @@ class Pins(commands.Cog):
 
     # Util
     async def _update(self):
-        with open(os.path.join(self.bot.dirname, "cogs/public/pins.json"), "w") as js:
+        with open(os.path.join(self.bot.dirname, "cogs/pins.json"), "w") as js:
             json.dump(self.pins, js)
 
     # Tasks
