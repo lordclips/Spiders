@@ -1,0 +1,5 @@
+I'm considering this my list of things not actually seen in the public repo.
+
+This uses the Discord.py Python API wrapper for Discord bots and includes use of both JSON and TinyDB for storage.
+
+I'll be migrating all storage to TinyDB inside of a master store and see how that goes, changing if I need to later.
