@@ -43,7 +43,8 @@ async def ext(ctx, com: str, name: str, debug: bool = True):
 
 
 if __name__ == "__main__":
-    for cog in conf["cogs"]:
-        bot.load_extension(cog)
+    if conf["autoload_extensions"]:
+        for cog in conf["cogs"]:
+            bot.load_extension(cog)
 
     bot.run(conf["tokens"]["d_bot"])
