@@ -1,6 +1,7 @@
 import discord
 import os
 import toml
+import sys
 
 from discord.ext import commands
 
@@ -43,7 +44,7 @@ async def ext(ctx, com: str, name: str, debug: bool = True):
 
 
 if __name__ == "__main__":
-    if conf["autoload_extensions"]:
+    if sys.argv.pop() == "-a":
         for cog in conf["cogs"]:
             bot.load_extension(cog)
 

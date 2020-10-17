@@ -19,13 +19,15 @@ class Pins(commands.Cog):
 
         self.time_checker.start()
 
-        with open(os.join.path(self.bot.dirname, "cogs/pins.json"), "r") as js:
+        with open(os.path.join(self.bot.dirname, "cogs/pins.json"), "r") as js:
             self.pins = json.load(js)
 
     # Checks
+    """
     def bot_check(self, ctx):
         role = ctx.guild.get_role(self._checkrole_id)
         return role in ctx.author.roles
+        """
 
     # Listeners
     @commands.Cog.listener()
@@ -93,6 +95,7 @@ class Pins(commands.Cog):
 
     # Commands
     @commands.command(aliases=("bp",))
+    @commands.is_owner()
     async def blacklist_pin(self, ctx, mid: int):
         strid = str(mid)
 
