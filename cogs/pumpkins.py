@@ -214,14 +214,18 @@ class Pumpkins(commands.Cog):
         # Removing regular bones and wandering skeletons
         # under different criteria.
         # 10 minutes for bones, 30 for wandering skeletons.
-        reg_rem = message_table.remove((where("acted") <= (time.time() - 60 * 10)) & (where("type") == "normal"))
-        wan_rem = message_table.remove((where("acted") <= (time.time() - 60 * 30)) & (where("type") == "wandering"))
+        reg_rem = message_table.remove(
+            (where("acted") <= (time.time() - 60 * 10)) & (where("type") == "normal")
+        )
+        wan_rem = message_table.remove(
+            (where("acted") <= (time.time() - 60 * 30)) & (where("type") == "wandering")
+        )
 
         if any([bool(reg_rem), bool(wan_rem)]):
             test_chan = self.bot.get_channel(self.maintenence)
             await test_chan.send(
-                "`check_table loop executed."
-                f"{len(reg_rem)} regular bone rows removed."
+                "`check_table loop executed.\n"
+                f"{len(reg_rem)} regular bone rows removed.\n"
                 f"{len(wan_rem)} wandering skeleton rows remove.`"
             )
 
