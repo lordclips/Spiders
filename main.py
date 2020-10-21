@@ -5,9 +5,10 @@ import sys
 
 from discord.ext import commands
 
-dirname = os.path.dirname(__file__)
+DIRNAME = os.path.dirname(__file__)
+BOT_LOG = 753522913839153163
 
-conf = toml.load(os.path.join(dirname, "conf.toml"))
+conf = toml.load(os.path.join(DIRNAME, "conf.toml"))
 
 intents = discord.Intents.all()
 
@@ -19,7 +20,17 @@ bot = commands.Bot(
     intents=intents,
 )
 
-bot.dirname = dirname
+bot.dirname = DIRNAME
+
+
+async def send_log(data: dict):
+    channel_obj = bot.get_channel(BOT_LOG)
+    to_send = discord.Embed.from_dict(data)
+
+    await channel_obj.send(embed=to_send)
+
+
+bot.send_log = send_log
 
 
 @bot.command(aliases=("e",))
@@ -37,10 +48,9 @@ async def ext(ctx, com: str, name: str, debug: bool = True):
 
     try:
         getattr(bot, f"{com}_extension")(name)
+        await ctx.send(f"Extension {name} {com}ed.")
     except Exception as e:
-        if debug:
-            await ctx.send(str(e))
-        raise (e)
+        await ctx.send(f"Failed to {com} {name}.")
 
 
 if __name__ == "__main__":

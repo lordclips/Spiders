@@ -29,11 +29,13 @@ BLOCKED_IDS = [
 class Pumpkins(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.maintenence = 753522913839153163
         self.db = tinydb.TinyDB(
             os.path.join(self.bot.dirname, "cogs/pumpkins.json"),
             storage=CachingMiddleware(orjsonStore),
         )
+
+    @commands.Cog.listener()
+    async def on_ready(self):
         self.check_table.start()
         self.flush_loop.start()
 
@@ -222,19 +224,19 @@ class Pumpkins(commands.Cog):
         )
 
         if any([bool(reg_rem), bool(wan_rem)]):
-            test_chan = self.bot.get_channel(self.maintenence)
-            await test_chan.send(
-                "`check_table loop executed.\n"
-                f"{len(reg_rem)} regular bone rows removed.\n"
-                f"{len(wan_rem)} wandering skeleton rows remove.`"
-            )
+            await self.bot.send_log({
+                "title": "Rows removed from bones Database.",
+                "fields": [
+                    {"name": "Bones", "value": f"{reg_rem} rows removed."},
+                    {"name": "Wandering", "value": f"{wan_rem} rows removed."}
+                ],
+            })
 
     @tasks.loop(minutes=30.0)
     async def flush_loop(self):
         self.db.storage.flush()
 
-        test_chan = self.bot.get_channel(self.maintenence)
-        await test_chan.send("`Force flushed DB.`")
+        await self.bot.send_log({"title": "Database force flushed."})
 
     # Cogs funcs
     def cog_unload(self):
