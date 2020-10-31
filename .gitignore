@@ -1,0 +1,6 @@
+conf.toml
+cogs/*.json
+/env
+/.git
+__pycache__
+*.conf

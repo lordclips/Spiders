@@ -181,7 +181,16 @@ class Pumpkins(commands.Cog):
 
         udata = user_table.get(doc_id=uid)
         await ctx.send(
-            f"`User inventory`\n`Bones:` {udata['bones']}\n`Skeletons:` {udata['skeletons']}"
+            f"`User inventory`\n"
+            f"`Bones:` {udata['bones']}\n"
+            f"`Pumpkins:` {udata['pumpkin']}\n"
+            f"`Skeletons:` {udata['skeletons']}\n"
+            f"`Hearts:` {udata['organs']['heart']}\n"
+            f"`Lungs:` {udata['organs']['lungs']}\n"
+            f"`Brains:` {udata['organs']['brain']}\n"
+            f"`Kidneys:` {udata['organs']['kidneys']}\n"
+            f"`Stomachs:` {udata['organs']['stomach']}\n"
+            f"`Frankenstein's Monsters:` {udata['fms']}"
         )
 
     @commands.command(aliases=("cs",))
@@ -201,12 +210,86 @@ class Pumpkins(commands.Cog):
                 "You do not have enough bones to gain a skeleton. (210 bones required)."
             )
 
+    @commands.command(aliases=("cm",))
+    async def craft_monster(self, ctx):
+        user_table = self.db.table("user_table")
+
+        uid = ctx.author.id
+
+        await self.verify_user(uid)
+
+        organs = user_table.get(doc_id=uid)["organs"]
+
+        if all(map(lambda n: n >= 5, organs.values())):
+            user_table.update(self.dec_dict("organs", 5), doc_ids=[uid])
+            user_table.update(add("fms", 1), doc_ids=[uid])
+            await ctx.send("You have gained a Frankenstein's Monster!")
+        else:
+            await ctx.send(
+                "You do not have enough organs to gain a Frankenstein's Monster. (5 of each required)."
+            )
+
+    @commands.command(aliases=("sp",))
+    async def smash_pumpkin(self, ctx):
+        user_table = self.db.table("user_table")
+
+        uid = ctx.author.id
+
+        await self.verify_user(uid)
+
+        if user_table.get(doc_id=uid)["pumpkin"]:
+            user_table.update(subtract("pumpkin", 1), doc_ids=[uid])
+
+            item = random.choices(
+                ["junk", "heart", "lungs", "brain", "kidneys", "stomach"],
+                weights=(25, 5, 5, 5, 5, 5),
+            )[0]
+
+            if item == "junk":
+                await ctx.send("You have earned junk.")
+            else:
+                user_table.update(self.upd_dict("organs", item, 1), doc_ids=[uid])
+
+                await ctx.send(f"You have earned: {item}")
+        else:
+            await ctx.send("You do not have any pumpkins to smash.")
+
+    @commands.command(aliases=("bup",))
+    async def buy_pumpkin(self, ctx):
+        user_table = self.db.table("user_table")
+
+        uid = ctx.author.id
+
+        await self.verify_user(uid)
+
+        if user_table.get(doc_id=uid)["bones"] >= 100:
+            user_table.update(subtract("bones", 100), doc_ids=[uid])
+            user_table.update(add("pumpkin", 1), doc_ids=[uid])
+
+            await ctx.send("You have bought a pumpkin!")
+        else:
+            await ctx.send(
+                "You do not have enough bones to buy a pumpkin. (100 required)."
+            )
+
     # Utils
     async def verify_user(self, uid):
         user_table = self.db.table("user_table")
 
         if not user_table.contains(doc_id=uid):
             user_table.insert(Document({"bones": 0, "skeletons": 0}, doc_id=uid))
+
+    def upd_dict(self, field, subfield, amount):
+        def transform(doc):
+            doc[field][subfield] += amount
+        return transform
+
+    def dec_dict(self, field, amount):
+        def transform(doc):
+            for key in doc[field]:
+                doc[field][key] -= amount
+
+        return transform
 
     # Tasks
     @tasks.loop(minutes=5.0)
@@ -224,13 +307,15 @@ class Pumpkins(commands.Cog):
         )
 
         if any([bool(reg_rem), bool(wan_rem)]):
-            await self.bot.send_log({
-                "title": "Rows removed from bones Database.",
-                "fields": [
-                    {"name": "Bones", "value": f"{reg_rem} rows removed."},
-                    {"name": "Wandering", "value": f"{wan_rem} rows removed."}
-                ],
-            })
+            await self.bot.send_log(
+                {
+                    "title": "Rows removed from bones Database.",
+                    "fields": [
+                        {"name": "Bones", "value": f"{reg_rem} rows removed."},
+                        {"name": "Wandering", "value": f"{wan_rem} rows removed."},
+                    ],
+                }
+            )
 
     @tasks.loop(minutes=30.0)
     async def flush_loop(self):
