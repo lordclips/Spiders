@@ -1,5 +1,6 @@
 conf.toml
 cogs/*.json
+*.json
 /env
 /.git
 __pycache__

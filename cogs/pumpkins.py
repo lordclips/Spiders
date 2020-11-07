@@ -282,6 +282,7 @@ class Pumpkins(commands.Cog):
     def upd_dict(self, field, subfield, amount):
         def transform(doc):
             doc[field][subfield] += amount
+
         return transform
 
     def dec_dict(self, field, amount):
